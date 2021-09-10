@@ -1,5 +1,7 @@
 # Ramen
-A simple Javascript gem miner. More details to follow!
+A tool to explore caves, adventure, and find riches! 💎
+
+Ramen is an experimental Javascript miner for Provably Rare Gems on Fantom, otherwise known as raritygems.
 
 ## How to use
 First, get NPM/nodejs installed. And grab all the files, of course.
