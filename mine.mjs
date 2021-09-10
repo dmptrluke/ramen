@@ -16,36 +16,43 @@ if ('claim' in config) {
 }
 
 async function mineGem(salt) {
-    await provably.methods.mine(config.gem_type.toString(), salt.toString()).estimateGas(
-        {
-            from: config.address,
-            gas: '100000'
-        }).then((gas) => {
-            console.log(`Estimated gas limit to claim is ${gas.toString()}.`)
+    try {
+        let estimated_gas = await provably.methods.mine(config.gem_type.toString(), salt.toString()).estimateGas(
+            {
+                from: config.address,
+                gas: '100000'
+            });
+        console.log(`Estimated gas limit to claim is ${estimated_gas}.`);
+    } catch (error) {
+        console.log('Gas to claim is too high, this gem has already been claimed.');
+        return;
+    }
 
-            if ('claim' in config) {
-                provably.methods.mine(config.gem_type, salt)
-                    .send({
-                        from: config.address,
-                        gasPrice: web3.utils.toWei("80", "Gwei"),
-                        gas: "100000"
-                    }).on('sent', () => {
-                        console.log('Claim transaction submitted...')
-                    }).on('transactionHash', (hash) => {
-                        console.log(`https://ftmscan.com/tx/${hash}`)
-                    }).on('receipt', (receipt) => {
-                        console.log(`Done!`)
-                    })
-                    .catch((error) => {
-                        console.log('Error', error)
-                    });
-                }
+    if ('claim' in config) {
+        let gas_price = await web3.eth.getGasPrice();
+        let max_price = web3.utils.toWei("200", "Gwei")
+        
+        if (gas_price > max_price) {
+            console.log(`Current network gas price is ${gas_price}, above your maximum of ${max_price}. Not claiming.`);
+            return;
+        }
 
-        }).catch((error) => {
-            console.log('Gas to claim is too high, this gem has already been claimed.')
-        });
-
-
+        provably.methods.mine(config.gem_type, salt)
+            .send({
+                from: config.address,
+                gasPrice: gas_price,
+                gas: "100000"
+            }).on('sent', () => {
+                console.log('Claim transaction submitted...')
+            }).on('transactionHash', (hash) => {
+                console.log(`https://ftmscan.com/tx/${hash}`)
+            }).on('receipt', (receipt) => {
+                console.log(`Done!`)
+            })
+            .catch((error) => {
+                console.log('Error', error)
+            });
+        }
 }
 
 function getSalt() {
@@ -57,8 +64,10 @@ function getSalt() {
     return bn;
 }
 
-async function getMineValue() {
-    return provably.methods.gems(config.gem_type).call();
+async function getState() {
+    const { entropy, difficulty } = await provably.methods.gems(config.gem_type).call();
+    const nonce = await provably.methods.nonce(config.address).call();
+    return { entropy, difficulty, nonce };
 };
 
 function luck(web3, chainId, entropy, gemAddr, senderAddr, kind, nonce, salt) {
@@ -75,13 +84,9 @@ var cancel = false;
 const infLoop = async () => {
     console.log('You venture into the mines...');
 
-    const resetMined = async () => {
-        const { entropy, difficulty } = await getMineValue();
-        const nonce = await provably.methods.nonce(config.address).call();
-        return { entropy, difficulty, nonce };
-    };
+    
 
-    let { entropy, difficulty, nonce } = await resetMined();
+    let { entropy, difficulty, nonce } = await getState();
 
     let i = 0;
     while (!cancel) {
@@ -101,9 +106,7 @@ const infLoop = async () => {
             cancel = true;
         }
         if (i % 10000 == 0) {
-            resetMined().then((value) => {
-                ({ entropy, difficulty, nonce } = value);
-            });
+            getState().then((state) => {({ entropy, difficulty, nonce } = state)});
             console.log(`Iteration: ${i}, Difficulty: ${difficulty}`);
         }
         if (i % 1000 == 0) {
