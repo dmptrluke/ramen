@@ -1,5 +1,5 @@
 // A tool to explore caves, adventure, and find riches.
-// Based on https://github.com/poomsc/Provably-Rare-Gem-Miner, and modified
+// https://github.com/dmptrluke/ramen
 
 import ABI from "./abi.json";
 import BN from "bn.js";
