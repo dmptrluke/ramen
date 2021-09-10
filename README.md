@@ -1,7 +1,7 @@
 # Ramen
 A tool to explore caves, adventure, and find riches! 💎
 
-Ramen is an quick, easy to use Javascript miner for Provably Rare Gems on Fantom, otherwise known as raritygems.
+Ramen is an quick, easy to use Javascript miner for [Provably Rare Gems](https://gems.alphafinance.io/#/rarity) on Fantom, otherwise known as raritygems.
 
 ## How to use
 First, get NPM/nodejs installed. And grab all the files, of course.
