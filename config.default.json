@@ -1,0 +1,8 @@
+{   "network": {
+        "chain_id": "250",
+        "rpc": "wss://wsapi.fantom.network",
+        "gem_address": "0x342EbF0A5ceC4404CcFF73a40f9c30288Fc72611"
+    },
+    "gem_type": 0,
+    "address": ""
+}
