@@ -1,7 +1,7 @@
 # Ramen
 A tool to explore caves, adventure, and find riches! 💎
 
-Ramen is an experimental Javascript miner for Provably Rare Gems on Fantom, otherwise known as raritygems.
+Ramen is an quick, easy to use Javascript miner for Provably Rare Gems on Fantom, otherwise known as raritygems.
 
 ## How to use
 First, get NPM/nodejs installed. And grab all the files, of course.
@@ -15,13 +15,23 @@ Then go mining:
 `npm start`
 
 ## Automatic claiming
-Ramen can now automatically claim gems if you put the following block in your config:
+Ramen can now automatically claim gems if you edit your `config.json` to look like the example below:
 
-THIS FEATURE IS EXPERIMENTAL, use at your own risk. I recommend you create a new account in Metamask/your Fantom wallet for this.
+THIS FEATURE IS EXPERIMENTAL! I recommend you create a new account in Metamask/your Fantom wallet for this.
 
-```
-"claim": {
-    "private_key": "KEY HERE"
+```json
+{
+    "network": {
+        "chain_id": "250",
+        "rpc": "https://rpc.ftm.tools/",
+        "gem_address": "0x342EbF0A5ceC4404CcFF73a40f9c30288Fc72611"
+    },
+    "ding": true,
+    "gem_type": 0,
+    "address": "ADDRESS HERE",
+    "claim": {
+        "private_key": "PRIVATE KEY HERE"
+    }
 }
 ```
 
