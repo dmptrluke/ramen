@@ -22,27 +22,30 @@ async function mineGem(salt) {
             gas: '100000'
         }).then((gas) => {
             console.log(`Estimated gas limit to claim is ${gas.toString()}.`)
+
+            if ('claim' in config) {
+                await provably.methods.mine(config.gem_type, salt)
+                    .send({
+                        from: config.address,
+                        gasPrice: web3.utils.toWei("80", "Gwei"),
+                        gas: "100000"
+                    }).on('sent', () => {
+                        console.log('Claim transaction submitted...')
+                    }).on('transactionHash', (hash) => {
+                        console.log(`https://ftmscan.com/tx/${hash}`)
+                    }).on('receipt', (receipt) => {
+                        console.log(`Done!`)
+                    })
+                    .catch((error) => {
+                        console.log('Error', error)
+                    });
+                }
+
         }).catch((error) => {
             console.log('Gas to claim is too high, this gem has already been claimed.')
         });
 
-    if ('claim' in config) {
-        await provably.methods.mine(config.gem_type, salt)
-            .send({
-                from: config.address,
-                gasPrice: web3.utils.toWei("80", "Gwei"),
-                gas: "100000"
-            }).on('sent', () => {
-                console.log('Claim transaction submitted...')
-            }).on('transactionHash', (hash) => {
-                console.log(`https://ftmscan.com/tx/${hash}`)
-            }).on('receipt', (receipt) => {
-                console.log(`Done!`)
-            })
-            .catch((error) => {
-                console.log('Error', error)
-            });
-    }
+
 }
 
 function getSalt() {
