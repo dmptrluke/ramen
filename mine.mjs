@@ -30,7 +30,7 @@ async function mineGem(salt) {
 
     if ('claim' in config) {
         let gas_price = await web3.eth.getGasPrice();
-        let max_price = web3.utils.toWei("200", "Gwei")
+        let max_price = web3.utils.toWei("500", "Gwei")
         
         if (gas_price > max_price) {
             console.log(`Current network gas price is ${gas_price}, above your maximum of ${max_price}. Not claiming.`);
