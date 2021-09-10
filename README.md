@@ -9,7 +9,7 @@ First, get NPM/nodejs installed. And grab all the files, of course.
 Then, install a few things:
 `npm i`
 
-Make a copy of `config.default.js` called `config.js`, and fill out the details.
+Make a copy of `config.default.json` called `config.json`, and fill out the details.
 
 Then go mining:
 `npm start`
