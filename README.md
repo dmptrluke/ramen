@@ -18,8 +18,6 @@ Ramen is **licensed** under the **GPL v3** license. The terms are as follows.
 
 ![GPL V3](https://www.gnu.org/graphics/gplv3-127x51.png)
     
-    Ramen
-
     Copyright © Ramen
 
     Ramen is free software: you can redistribute it and/or modify
@@ -35,3 +33,4 @@ Ramen is **licensed** under the **GPL v3** license. The terms are as follows.
     You should have received a copy of the GNU General Public License
     along with Ramen.  If not, see <http://www.gnu.org/licenses/>.
     
+Ramen is based on code from https://github.com/poomsc/Provably-Rare-Gem-Miner
