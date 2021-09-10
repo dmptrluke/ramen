@@ -14,6 +14,17 @@ Make a copy of `config.default.json` called `config.json`, and fill out the deta
 Then go mining:
 `npm start`
 
+## Automatic claiming
+Ramen can now automatically claim gems if you put the following block in your config:
+
+THIS FEATURE IS EXPERIMENTAL, use at your own risk, obviously.
+
+```
+"claim": {
+    "private_key": "KEY HERE"
+}
+```
+
 ## License
 
 Ramen is **licensed** under the **GPL v3** license. The terms are as follows.
