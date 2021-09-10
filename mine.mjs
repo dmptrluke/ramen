@@ -11,6 +11,40 @@ import config from './config.json'
 const web3 = new Web3(config.network.rpc);
 const provably = new web3.eth.Contract(ABI, config.network.gem_address);
 
+if ('claim' in config) {
+    web3.eth.accounts.wallet.add(config.claim.private_key);
+}
+
+async function mineGem(salt) {
+    await provably.methods.mine(config.gem_type.toString(), salt.toString()).estimateGas(
+        {
+            from: config.address,
+            gas: '100000'
+        }).then((gas) => {
+            console.log(`Estimated gas limit to claim is ${gas.toString()}.`)
+        }).catch((error) => {
+            console.log('Gas to claim is too high, this gem has already been claimed.')
+        });
+
+    if ('claim' in config) {
+        await provably.methods.mine(config.gem_type, salt)
+            .send({
+                from: config.address,
+                gasPrice: web3.utils.toWei("80", "Gwei"),
+                gas: "100000"
+            }).on('sent', () => {
+                console.log('Claim transaction submitted...')
+            }).on('transactionHash', (hash) => {
+                console.log(`https://ftmscan.com/tx/${hash}`)
+            }).on('receipt', (receipt) => {
+                console.log(`Done!`)
+            })
+            .catch((error) => {
+                console.log('Error', error)
+            });
+    }
+}
+
 function getSalt() {
     const value = randomBytes(32); // 32 bytes = 256 bits
     // Value as native bigint
@@ -20,7 +54,7 @@ function getSalt() {
     return bn;
 }
 
-const getMineValue = async () => {
+async function getMineValue() {
     return provably.methods.gems(config.gem_type).call();
 };
 
@@ -49,20 +83,25 @@ const infLoop = async () => {
     let i = 0;
     while (!cancel) {
         const salt = getSalt();
-        const ans = luck(web3, config.network.chain_id, entropy, config.network.gem_address, 
+        const ans = luck(web3, config.network.chain_id, entropy, config.network.gem_address,
             config.address, config.gem_type, nonce, salt).toString();
 
         i += 1;
         if (new BN(2).pow(new BN(256)).div(new BN(difficulty)).gte(new BN(ans))) {
+            if (config.ding) {
+                console.log('\u0007');
+            }
+
             console.log("You stumble upon a vein of gems!");
-            console.log("SALT:", salt.toString());
-            process.exit();
+            console.log(`KIND: ${config.gem_type} SALT: ${salt}`);
+            mineGem(salt);
+            cancel = true;
         }
         if (i % 10000 == 0) {
             resetMined().then((value) => {
                 ({ entropy, difficulty, nonce } = value);
             });
-            console.log("Iteration:", i, ", Difficulty:", difficulty);
+            console.log(`Iteration: ${i}, Difficulty: ${difficulty}`);
         }
         if (i % 1000 == 0) {
             await new Promise(r => setTimeout(r, 1));
