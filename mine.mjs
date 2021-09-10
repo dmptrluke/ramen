@@ -24,7 +24,7 @@ async function mineGem(salt) {
             console.log(`Estimated gas limit to claim is ${gas.toString()}.`)
 
             if ('claim' in config) {
-                await provably.methods.mine(config.gem_type, salt)
+                provably.methods.mine(config.gem_type, salt)
                     .send({
                         from: config.address,
                         gasPrice: web3.utils.toWei("80", "Gwei"),
