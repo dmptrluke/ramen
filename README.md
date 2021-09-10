@@ -1,5 +1,4 @@
 # Ramen
-## A Javascript Provably Rare Gem Miner
 A simple Javascript gem miner. More details to follow!
 
 ## How to use
