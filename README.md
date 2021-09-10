@@ -17,7 +17,7 @@ Then go mining:
 ## Automatic claiming
 Ramen can now automatically claim gems if you put the following block in your config:
 
-THIS FEATURE IS EXPERIMENTAL, use at your own risk, obviously.
+THIS FEATURE IS EXPERIMENTAL, use at your own risk. I recommend you create a new account in Metamask/your Fantom wallet for this.
 
 ```
 "claim": {
