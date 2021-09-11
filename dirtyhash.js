@@ -84,13 +84,9 @@ var _parseNumber = function (arg) {
     }
 };
 var _solidityPack = function (type, value, arraySize) {
-    /*jshint maxcomplexity:false */
     var size, num;
     type = _elementaryName(type);
     if (type === 'bytes') {
-        if (value.replace(/^0x/i, '').length % 2 !== 0) {
-            throw new Error('Invalid bytes characters ' + value.length);
-        }
         return value;
     }
     else if (type === 'string') {
@@ -100,22 +96,10 @@ var _solidityPack = function (type, value, arraySize) {
         return value ? '01' : '00';
     }
     else if (type.startsWith('address')) {
-        if (arraySize) {
-            size = 64;
-        }
-        else {
-            size = 40;
-        }
-        //if (!utils.isAddress(value)) {
-        //    throw new Error(value + ' is not a valid address, or the checksum is invalid.');
-        //}
-        return utils.leftPad(value.toLowerCase(), size);
+        return value.toLowerCase();
     }
     size = _parseTypeN(type);
     if (type.startsWith('bytes')) {
-        if (!size) {
-            throw new Error('bytes[] not yet supported in solidity');
-        }
         // must be 32 byte slices when in an array
         if (arraySize) {
             size = 32;
@@ -126,35 +110,14 @@ var _solidityPack = function (type, value, arraySize) {
         return utils.rightPad(value, size * 2);
     }
     else if (type.startsWith('uint')) {
-        if ((size % 8) || (size < 8) || (size > 256)) {
-            throw new Error('Invalid uint' + size + ' size');
-        }
         num = _parseNumber(value);
-        if (num.bitLength() > size) {
-            throw new Error('Supplied uint exceeds width: ' + size + ' vs ' + num.bitLength());
-        }
-        if (num.lt(new BN(0))) {
-            throw new Error('Supplied uint ' + num.toString() + ' is negative');
-        }
         return size ? utils.leftPad(num.toString('hex'), size / 8 * 2) : num;
     }
     else if (type.startsWith('int')) {
-        if ((size % 8) || (size < 8) || (size > 256)) {
-            throw new Error('Invalid int' + size + ' size');
-        }
         num = _parseNumber(value);
-        if (num.bitLength() > size) {
-            throw new Error('Supplied int exceeds width: ' + size + ' vs ' + num.bitLength());
-        }
-        if (num.lt(new BN(0))) {
-            return num.toTwos(size).toString('hex');
-        }
-        else {
-            return size ? utils.leftPad(num.toString('hex'), size / 8 * 2) : num;
-        }
+        return size ? utils.leftPad(num.toString('hex'), size / 8 * 2) : num;
     }
     else {
-        // FIXME: support all other types
         throw new Error('Unsupported or invalid type: ' + type);
     }
 };

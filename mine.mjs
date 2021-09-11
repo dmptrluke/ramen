@@ -123,12 +123,12 @@ async function loop() {
             }
             cancel = true;
         }
-        if (i % 10000 == 0) {
-            state = await getState();
+        if (i % 20000 == 0) {
+            getState().then((x) => {state = x});
             console.log(`Iteration: ${i}, Difficulty: ${state.difficulty}`);
         }
-        if (i % 1000 == 0) {
-            // pause every 1000 iterations to allow other async operations to process
+        if (i % 2000 == 0) {
+            // pause every 2000 iterations to allow other async operations to process
             await new Promise(r => setTimeout(r, 1));
         }
     }
