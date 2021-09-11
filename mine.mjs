@@ -8,6 +8,15 @@ import Web3 from 'web3';
 
 import config from './config.json'
 
+const gems = {
+    0: "Turquoise",
+	1: "Pearl",
+	2: "Zircon",
+	3: "Moonstone",
+	4: "Amber",
+    5: "Spinel",
+}
+
 const web3 = new Web3(config.network.rpc);
 const provably = new web3.eth.Contract(ABI, config.network.gem_address);
 
@@ -30,7 +39,7 @@ async function mine(salt) {
         console.log(`Estimated gas required to claim is ${estimated_gas}.`);
     } catch (error) {
         // if the required gas is over 100k, this gem is probably unminable
-        console.log('Gas to claim is too high, this gem has already been claimed.');
+        console.log('The gas required to claim this gem is too high, it is invalid or has already been mined.');
         return;
     }
 
@@ -111,7 +120,7 @@ const infLoop = async () => {
 
         i += 1;
         if (calulated_difficulty.gte(new BN(ans))) {
-            console.log("You stumble upon a vein of gems!");
+            console.log(`You stumble upon a vein of ${gems[config.gem_type]}!`);
             console.log(`KIND: ${config.gem_type} SALT: ${salt}`);
             
             await mine(salt);
@@ -133,7 +142,7 @@ const infLoop = async () => {
 };
 
 const main = async () => {
-    console.log('You venture into the mines...');
+    console.log(`You venture into the mines in search of ${gems[config.gem_type]}...`);
     if (config.loop) {
         while (true) {
             await infLoop();
