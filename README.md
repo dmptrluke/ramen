@@ -30,7 +30,8 @@ THIS FEATURE IS EXPERIMENTAL! I recommend you create a new account in Metamask/y
     "gem_type": 0,
     "address": "ADDRESS HERE",
     "claim": {
-        "private_key": "PRIVATE KEY HERE"
+        "private_key": "PRIVATE KEY HERE",
+        "maximum_gas_price": 500
     }
 }
 ```

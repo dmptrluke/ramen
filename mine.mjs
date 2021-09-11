@@ -22,7 +22,7 @@ async function mineGem(salt) {
                 from: config.address,
                 gas: '100000'
             });
-        console.log(`Estimated gas limit to claim is ${estimated_gas}.`);
+        console.log(`Estimated gas required to claim is ${estimated_gas}.`);
     } catch (error) {
         console.log('Gas to claim is too high, this gem has already been claimed.');
         return;
@@ -30,10 +30,15 @@ async function mineGem(salt) {
 
     if ('claim' in config) {
         let gas_price = await web3.eth.getGasPrice();
-        let max_price = web3.utils.toWei("500", "Gwei")
+
+        if ('maximum_gas_price' in config.claim) {
+            var max_price = web3.utils.toWei(config.claim.maximum_gas_price.toString(), "Gwei")
+        } else {
+            var max_price = web3.utils.toWei("1", "Gwei")
+        }
         
-        if (gas_price > max_price) {
-            console.log(`Current network gas price is ${gas_price}, above your maximum of ${max_price}. Not claiming.`);
+        if (parseFloat(gas_price) > max_price) {
+            console.log(`Current network gas price is ${web3.utils.fromWei(gas_price, "Gwei")} GWEI, above your price limit of ${web3.utils.fromWei(max_price, "Gwei")} GWEI. Not claiming.`);
             return;
         }
 
