@@ -10,10 +10,10 @@ import config from './config.json'
 
 const gems = {
     0: "turquoise",
-	1: "pearl",
-	2: "zircon",
-	3: "moonstone",
-	4: "amber",
+    1: "pearl",
+    2: "zircon",
+    3: "moonstone",
+    4: "amber",
     5: "spinel",
 }
 
@@ -51,7 +51,7 @@ async function mine(salt) {
         } else {
             var max_price = web3.utils.toWei("1", "Gwei")
         }
-        
+
         if (parseFloat(gas_price) > max_price) {
             console.log(`Current network gas price is ${web3.utils.fromWei(gas_price, "Gwei")} GWEI, above your price limit of ${web3.utils.fromWei(max_price, "Gwei")} GWEI. Not claiming.`);
             return;
@@ -72,7 +72,7 @@ async function mine(salt) {
             .catch((error) => {
                 console.log('Error', error)
             });
-        }
+    }
 }
 
 /**
@@ -106,23 +106,23 @@ function luck(web3, chainId, entropy, gemAddr, senderAddr, kind, nonce, salt) {
 
 var cancel = false;
 
-const infLoop = async () => {
+async function loop() {
     console.log('You find a new branch of the cave to mine and head in.');
 
     // get the inital contract state
-    var { entropy, difficulty, calulated_difficulty, nonce } = await getState();
+    var state = await getState();
 
     let i = 0;
     while (!cancel) {
         const salt = randomSalt();
-        const ans = luck(web3, config.network.chain_id, entropy, config.network.gem_address,
-            config.address, config.gem_type, nonce, salt).toString();
+        const ans = luck(web3, config.network.chain_id, state.entropy, config.network.gem_address,
+            config.address, config.gem_type, state.nonce, salt).toString();
 
         i += 1;
-        if (calulated_difficulty.gte(new BN(ans))) {
+        if (state.calulated_difficulty.gte(new BN(ans))) {
             console.log(`You stumble upon a vein of ${gems[config.gem_type]}!`);
             console.log(`KIND: ${config.gem_type} SALT: ${salt}`);
-            
+
             await mine(salt);
             if (config.ding) {
                 console.log('\u0007');
@@ -130,8 +130,8 @@ const infLoop = async () => {
             cancel = true;
         }
         if (i % 10000 == 0) {
-            getState().then((state) => {({ entropy, difficulty, calulated_difficulty, nonce } = state)});
-            console.log(`Iteration: ${i}, Difficulty: ${difficulty}`);
+            state = await getState();
+            console.log(`Iteration: ${i}, Difficulty: ${state.difficulty}`);
         }
         if (i % 1000 == 0) {
             // pause every 1000 iterations to allow other async operations to process
@@ -141,14 +141,14 @@ const infLoop = async () => {
     cancel = false;
 };
 
-const main = async () => {
+async function main() {
     console.log(`You venture into the mines in search of ${gems[config.gem_type]}...`);
     if (config.loop) {
         while (true) {
-            await infLoop();
+            await loop();
         }
     } else {
-        await infLoop();
+        await loop();
     }
 };
 
