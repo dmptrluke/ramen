@@ -48,7 +48,7 @@ async function mine(salt) {
             return;
         }
 
-        provably.methods.mine(config.gem_type, salt)
+        await provably.methods.mine(config.gem_type, salt)
             .send({
                 from: config.address,
                 gasPrice: gas_price,
@@ -98,7 +98,7 @@ function luck(web3, chainId, entropy, gemAddr, senderAddr, kind, nonce, salt) {
 var cancel = false;
 
 const infLoop = async () => {
-    console.log('You venture into the mines...');
+    console.log('You find a new branch of the cave to mine and head in.');
 
     // get the inital contract state
     var { entropy, difficulty, calulated_difficulty, nonce } = await getState();
@@ -111,13 +111,13 @@ const infLoop = async () => {
 
         i += 1;
         if (calulated_difficulty.gte(new BN(ans))) {
+            console.log("You stumble upon a vein of gems!");
+            console.log(`KIND: ${config.gem_type} SALT: ${salt}`);
+            
+            await mine(salt);
             if (config.ding) {
                 console.log('\u0007');
             }
-            
-            console.log("You stumble upon a vein of gems!");
-            console.log(`KIND: ${config.gem_type} SALT: ${salt}`);
-            mine(salt);
             cancel = true;
         }
         if (i % 10000 == 0) {
@@ -133,6 +133,7 @@ const infLoop = async () => {
 };
 
 const main = async () => {
+    console.log('You venture into the mines...');
     if (config.loop) {
         while (true) {
             await infLoop();
