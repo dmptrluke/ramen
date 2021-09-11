@@ -113,7 +113,7 @@ async function loop() {
         let iteration = hash(state);
 
         i += 1;
-        if (state.calulated_difficulty.gte(new BN(iteration.result))) {
+        if (state.calulated_difficulty.gte(iteration.result)) {
             console.log(`You stumble upon a vein of ${gems[config.gem_type]}!`);
             console.log(`KIND: ${config.gem_type} SALT: ${iteration.salt}`);
 
