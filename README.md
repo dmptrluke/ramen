@@ -18,6 +18,8 @@ Then you'll need to open up a terminal/command line in the correct folder, and r
 ## Configuration
 The default configuration for automatically claiming gems looks like the example below. Set `loop` to true if you want the miner to keep mining after it finds a gem.
 
+Set `gem_type` to pick the gem you want to mine. You can see a list of gem types at the start of [mine.mjs](https://github.com/dmptrluke/ramen/blob/master/mine.mjs).
+
 ```json
 {
     "network": {
