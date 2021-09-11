@@ -7,6 +7,7 @@ import { randomBytes } from "crypto";
 import Web3 from 'web3';
 
 import config from './config.json'
+import { soliditySha3 } from "./dirtyhash.js";
 
 const gems = {
     0: "turquoise",
@@ -76,14 +77,6 @@ async function mine(salt) {
 }
 
 /**
- * Generates a random salt.
- * @return {BN} a randomly generated salt.
- */
-function randomSalt() {
-    return new BN(randomBytes(32).toString("hex"), 16);
-}
-
-/**
  * Calls the gems() function on the gem contract to get the current
  * entropy, difficult, and nonce.
  */
@@ -94,14 +87,17 @@ async function getState() {
     return { entropy, difficulty, calulated_difficulty, nonce };
 };
 
-function luck(web3, chainId, entropy, gemAddr, senderAddr, kind, nonce, salt) {
-    return new BN(web3.utils.soliditySha3({ t: "uint256", v: chainId }, // chainid
-        { t: "bytes32", v: entropy }, { t: "address", v: gemAddr }, // gem address
-        { t: "address", v: senderAddr }, // sender address
-        { t: "uint", v: kind }, // gem kind
-        { t: "uint", v: nonce }, // sender nonce
-        { t: "uint", v: salt } // sender salt
+function hash(state) {
+    const salt = new BN(randomBytes(32).toString("hex"), 16);
+    const result = new BN(soliditySha3({ t: "uint256", v: config.network.chain_id },
+        { t: "bytes32", v: state.entropy }, { t: "address", v: config.network.gem_address },
+        { t: "address", v: config.address },
+        { t: "uint", v: config.gem_type },
+        { t: "uint", v: state.nonce },
+        { t: "uint", v: salt }
     ).slice(2), 16);
+
+    return { salt, result }
 }
 
 var cancel = false;
@@ -114,16 +110,14 @@ async function loop() {
 
     let i = 0;
     while (!cancel) {
-        const salt = randomSalt();
-        const ans = luck(web3, config.network.chain_id, state.entropy, config.network.gem_address,
-            config.address, config.gem_type, state.nonce, salt).toString();
+        let iteration = hash(state);
 
         i += 1;
-        if (state.calulated_difficulty.gte(new BN(ans))) {
+        if (state.calulated_difficulty.gte(new BN(iteration.result))) {
             console.log(`You stumble upon a vein of ${gems[config.gem_type]}!`);
-            console.log(`KIND: ${config.gem_type} SALT: ${salt}`);
+            console.log(`KIND: ${config.gem_type} SALT: ${iteration.salt}`);
 
-            await mine(salt);
+            await mine(iteration.salt);
             if (config.ding) {
                 console.log('\u0007');
             }
