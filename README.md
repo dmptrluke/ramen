@@ -28,6 +28,7 @@ THIS FEATURE IS EXPERIMENTAL! I recommend you create a new account in Metamask/y
         "gem_address": "0x342EbF0A5ceC4404CcFF73a40f9c30288Fc72611"
     },
     "ding": true,
+    "loop": false,
     "gem_type": 0,
     "address": "ADDRESS HERE",
     "claim": {

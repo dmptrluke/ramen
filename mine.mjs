@@ -133,7 +133,13 @@ const infLoop = async () => {
 };
 
 const main = async () => {
-    infLoop();
+    if (config.loop) {
+        while (true) {
+            await infLoop();
+        }
+    } else {
+        await infLoop();
+    }
 };
 
 main();
