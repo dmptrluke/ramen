@@ -11,11 +11,16 @@ import config from './config.json'
 const web3 = new Web3(config.network.rpc);
 const provably = new web3.eth.Contract(ABI, config.network.gem_address);
 
+// if auto-claim is enabled, load the users private key
 if ('claim' in config) {
     web3.eth.accounts.wallet.add(config.claim.private_key);
 }
 
-async function mineGem(salt) {
+/**
+ * Take a salt and calls the mine() function the the gem contract.
+ * @param {BN} salt A previously-verified salt to process.
+ */
+async function mine(salt) {
     try {
         let estimated_gas = await provably.methods.mine(config.gem_type.toString(), salt.toString()).estimateGas(
             {
@@ -24,6 +29,7 @@ async function mineGem(salt) {
             });
         console.log(`Estimated gas required to claim is ${estimated_gas}.`);
     } catch (error) {
+        // if the required gas is over 100k, this gem is probably unminable
         console.log('Gas to claim is too high, this gem has already been claimed.');
         return;
     }
@@ -60,19 +66,23 @@ async function mineGem(salt) {
         }
 }
 
-function getSalt() {
-    const value = randomBytes(32); // 32 bytes = 256 bits
-    // Value as native bigint
-    const bigInt = BigInt(`0x${value.toString("hex")}`);
-    // Value as BN.js number
-    const bn = new BN(value.toString("hex"), 16);
-    return bn;
+/**
+ * Generates a random salt.
+ * @return {BN} a randomly generated salt.
+ */
+function randomSalt() {
+    return new BN(randomBytes(32).toString("hex"), 16);
 }
 
+/**
+ * Calls the gems() function on the gem contract to get the current
+ * entropy, difficult, and nonce.
+ */
 async function getState() {
     const { entropy, difficulty } = await provably.methods.gems(config.gem_type).call();
     const nonce = await provably.methods.nonce(config.address).call();
-    return { entropy, difficulty, nonce };
+    const calulated_difficulty = new BN(2).pow(new BN(256)).div(new BN(difficulty));
+    return { entropy, difficulty, calulated_difficulty, nonce };
 };
 
 function luck(web3, chainId, entropy, gemAddr, senderAddr, kind, nonce, salt) {
@@ -86,35 +96,36 @@ function luck(web3, chainId, entropy, gemAddr, senderAddr, kind, nonce, salt) {
 }
 
 var cancel = false;
+
 const infLoop = async () => {
     console.log('You venture into the mines...');
 
-    
-
-    let { entropy, difficulty, nonce } = await getState();
+    // get the inital contract state
+    var { entropy, difficulty, calulated_difficulty, nonce } = await getState();
 
     let i = 0;
     while (!cancel) {
-        const salt = getSalt();
+        const salt = randomSalt();
         const ans = luck(web3, config.network.chain_id, entropy, config.network.gem_address,
             config.address, config.gem_type, nonce, salt).toString();
 
         i += 1;
-        if (new BN(2).pow(new BN(256)).div(new BN(difficulty)).gte(new BN(ans))) {
+        if (calulated_difficulty.gte(new BN(ans))) {
             if (config.ding) {
                 console.log('\u0007');
             }
-
+            
             console.log("You stumble upon a vein of gems!");
             console.log(`KIND: ${config.gem_type} SALT: ${salt}`);
-            mineGem(salt);
+            mine(salt);
             cancel = true;
         }
         if (i % 10000 == 0) {
-            getState().then((state) => {({ entropy, difficulty, nonce } = state)});
+            getState().then((state) => {({ entropy, difficulty, calulated_difficulty, nonce } = state)});
             console.log(`Iteration: ${i}, Difficulty: ${difficulty}`);
         }
         if (i % 1000 == 0) {
+            // pause every 1000 iterations to allow other async operations to process
             await new Promise(r => setTimeout(r, 1));
         }
     }
