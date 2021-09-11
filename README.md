@@ -6,7 +6,7 @@ Ramen is an quick, easy to use Javascript miner for [Provably Rare Gems](https:/
 ## How to use
 First, [install node.js](https://nodejs.org/en/). And grab all the files, of course.
 
-Make a copy of `config.default.json` called `config.json`, and fill out the details. 
+Create your **config.json** file. Instructions are included below!
 
 Then you'll need to open up a terminal/command line in the correct folder, and run the following two commands:
 
@@ -15,10 +15,10 @@ Then you'll need to open up a terminal/command line in the correct folder, and r
 
 `npm start` to start mining!
 
-## Automatic claiming
-Ramen can now automatically claim gems if you edit your `config.json` to look like the example below:
+## Configuration
+The default configuration for automatically claiming gems looks like the example below. Set `loop` to true if you want the miner to keep mining after it finds a gem.
 
-THIS FEATURE IS EXPERIMENTAL! I recommend you create a new account in Metamask/your Fantom wallet for this.
+Set `gem_type` to pick the gem you want to mine. You can see a list of gem types at the start of [mine.mjs](https://github.com/dmptrluke/ramen/blob/master/mine.mjs).
 
 ```json
 {
@@ -37,6 +37,8 @@ THIS FEATURE IS EXPERIMENTAL! I recommend you create a new account in Metamask/y
     }
 }
 ```
+
+**Remember to be safe!** It's good practise to make a second account in Metamask for scripts like this, so you don't expose your main private key. If you'd like to just get salts and claim gems yourself, you can remove the whole `claim` section from the default configuration.
 
 ## License
 

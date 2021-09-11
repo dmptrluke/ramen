@@ -1,4 +1,5 @@
-{   "network": {
+{
+    "network": {
         "chain_id": "250",
         "rpc": "https://rpc.ftm.tools/",
         "gem_address": "0x342EbF0A5ceC4404CcFF73a40f9c30288Fc72611"
@@ -6,5 +7,9 @@
     "ding": true,
     "loop": false,
     "gem_type": 0,
-    "address": ""
+    "address": "ADDRESS HERE",
+    "claim": {
+        "private_key": "PRIVATE KEY HERE",
+        "maximum_gas_price": 500
+    }
 }
