@@ -9,12 +9,12 @@ import Web3 from 'web3';
 import config from './config.json'
 
 const gems = {
-    0: "Turquoise",
-	1: "Pearl",
-	2: "Zircon",
-	3: "Moonstone",
-	4: "Amber",
-    5: "Spinel",
+    0: "turquoise",
+	1: "pearl",
+	2: "zircon",
+	3: "moonstone",
+	4: "amber",
+    5: "spinel",
 }
 
 const web3 = new Web3(config.network.rpc);
