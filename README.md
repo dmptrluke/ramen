@@ -4,15 +4,16 @@ A tool to explore caves, adventure, and find riches! 💎
 Ramen is an quick, easy to use Javascript miner for [Provably Rare Gems](https://gems.alphafinance.io/#/rarity) on Fantom, otherwise known as raritygems.
 
 ## How to use
-First, get NPM/nodejs installed. And grab all the files, of course.
+First, [install node.js](https://nodejs.org/en/). And grab all the files, of course.
 
-Then, install a few things:
-`npm i`
+Make a copy of `config.default.json` called `config.json`, and fill out the details. 
 
-Make a copy of `config.default.json` called `config.json`, and fill out the details.
+Then you'll need to open up a terminal/command line in the correct folder, and run the following two commands:
 
-Then go mining:
-`npm start`
+`npm ci` to install required software.
+
+
+`npm start` to start mining!
 
 ## Automatic claiming
 Ramen can now automatically claim gems if you edit your `config.json` to look like the example below:
