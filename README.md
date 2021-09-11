@@ -6,10 +6,10 @@ Ramen is an quick, easy to use Javascript miner for [Provably Rare Gems](https:/
 ## How to use
 First, get NPM/nodejs installed. And grab all the files, of course.
 
-Then, install a few things:
-`npm i`
+Make a copy of `config.default.json` called `config.json`, and fill out the details. Then you'll need to run two commands:
 
-Make a copy of `config.default.json` called `config.json`, and fill out the details.
+Install a few things:
+`npm ci`
 
 Then go mining:
 `npm start`
