@@ -1,7 +1,7 @@
 # Ramen
 A tool to explore caves, adventure, and find riches! 💎
 
-Ramen is an quick, easy to use Javascript miner for [Provably Rare Gems](https://gems.alphafinance.io/#/rarity) on Fantom, otherwise known as raritygems.
+Ramen is an quick, easy to use Javascript miner for [Provably Rare Gems](https://gems.alphafinance.io/#/rarity) on Fantom (raritygems) and Ethereum (lootgems).
 
 ## How to use
 First, [install node.js](https://nodejs.org/en/). And grab all the files, of course.
@@ -18,7 +18,7 @@ Then you'll need to open up a terminal/command line in the correct folder, and r
 ## Configuration
 The default configuration for automatically claiming gems looks like the example below. Set `loop` to true if you want the miner to keep mining after it finds a gem.
 
-Set `gem_type` to pick the gem you want to mine. You can see a list of gem types at the start of [mine.mjs](https://github.com/dmptrluke/ramen/blob/master/mine.mjs).
+Set `gem_type` to pick the gem you want to mine. You can see a list of gem types in [GEMS.md](https://github.com/dmptrluke/ramen/blob/master/GEMS.md).
 
 ```json
 {
@@ -37,6 +37,8 @@ Set `gem_type` to pick the gem you want to mine. You can see a list of gem types
     }
 }
 ```
+
+If you want to mine Lootgems or Blootgems on Ethereum, remember to update the `network` sections with the correct details.
 
 **Remember to be safe!** It's good practise to make a second account in Metamask for scripts like this, so you don't expose your main private key. If you'd like to just get salts and claim gems yourself, you can remove the whole `claim` section from the default configuration.
 

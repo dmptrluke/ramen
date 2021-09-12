@@ -8,20 +8,13 @@ import Web3 from 'web3';
 import config from './config.json'
 import { soliditySha3 } from "./dirtyhash.js";
 
-import ABI_FANTOM_GEM from "./abi/fantom_gem.json";
+import ABI_FANTOM_GEM from "./abi/gem.json";
 import ABI_FANTOM_POOL from "./abi/fantom_pool.json";
-
-const gems = {
-    0: "turquoise",
-    1: "pearl",
-    2: "zircon",
-    3: "moonstone",
-    4: "amber",
-    5: "spinel",
-}
 
 const web3 = new Web3(config.network.rpc);
 const provably = new web3.eth.Contract(ABI_FANTOM_GEM, config.network.gem_address);
+
+const { name } = await provably.methods.gems(config.gem_type).call();
 
 // if auto-claim is enabled, load the users private key
 if ('claim' in config) {
@@ -134,7 +127,7 @@ async function loop() {
 
         i += 1;
         if (state.calulated_difficulty.gte(iteration.result)) {
-            console.log(`You stumble upon a vein of ${gems[config.gem_type]}!`);
+            console.log(`You stumble upon a vein of ${name}!`);
             console.log(`KIND: ${config.gem_type} SALT: ${iteration.salt}`);
 
             await mine(iteration.salt);
@@ -156,7 +149,7 @@ async function loop() {
 };
 
 async function main() {
-    console.log(`You venture into the mines in search of ${gems[config.gem_type]}...`);
+    console.log(`You venture into the mines in search of ${name}...`);
     if (config.loop) {
         while (true) {
             await loop();
