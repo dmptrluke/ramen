@@ -1,13 +1,15 @@
 // A tool to explore caves, adventure, and find riches.
 // https://github.com/dmptrluke/ramen
 
-import ABI from "./abi.json";
 import BN from "bn.js";
 import { randomBytes } from "crypto";
 import Web3 from 'web3';
 
 import config from './config.json'
 import { soliditySha3 } from "./dirtyhash.js";
+
+import ABI_FANTOM_GEM from "./abi/fantom_gem.json";
+import ABI_FANTOM_POOL from "./abi/fantom_pool.json";
 
 const gems = {
     0: "turquoise",
@@ -19,11 +21,22 @@ const gems = {
 }
 
 const web3 = new Web3(config.network.rpc);
-const provably = new web3.eth.Contract(ABI, config.network.gem_address);
+const provably = new web3.eth.Contract(ABI_FANTOM_GEM, config.network.gem_address);
 
 // if auto-claim is enabled, load the users private key
 if ('claim' in config) {
     web3.eth.accounts.wallet.add(config.claim.private_key);
+}
+
+// support for yoyoismee's pooled mining contract
+var pool;
+var pooled = false;
+var mining_target = config.address;
+
+if ('pool_address' in config.network) {
+    pool = new web3.eth.Contract(ABI_FANTOM_POOL, config.network.pool_address);
+    pooled = true;
+    mining_target = config.network.pool_address;
 }
 
 /**
@@ -34,8 +47,8 @@ async function mine(salt) {
     try {
         let estimated_gas = await provably.methods.mine(config.gem_type.toString(), salt.toString()).estimateGas(
             {
-                from: config.address,
-                gas: '100000'
+                from: mining_target,
+                gas: '120000'
             });
         console.log(`Estimated gas required to claim is ${estimated_gas}.`);
     } catch (error) {
@@ -58,11 +71,18 @@ async function mine(salt) {
             return;
         }
 
-        await provably.methods.mine(config.gem_type, salt)
+        var contract = provably;
+        var gas_limit = '120000';
+        if (pooled) {
+            contract = pool;
+            gas_limit = '300000';
+        } 
+
+        await contract.methods.mine(config.gem_type, salt)
             .send({
                 from: config.address,
                 gasPrice: gas_price,
-                gas: "100000"
+                gas: gas_limit
             }).on('sent', () => {
                 console.log('Claim transaction submitted...')
             }).on('transactionHash', (hash) => {
@@ -82,7 +102,7 @@ async function mine(salt) {
  */
 async function getState() {
     const { entropy, difficulty } = await provably.methods.gems(config.gem_type).call();
-    const nonce = await provably.methods.nonce(config.address).call();
+    const nonce = await provably.methods.nonce(mining_target).call();
     const calulated_difficulty = new BN(2).pow(new BN(256)).div(new BN(difficulty));
     return { entropy, difficulty, calulated_difficulty, nonce };
 };
@@ -91,7 +111,7 @@ function hash(state) {
     const salt = new BN(randomBytes(32).toString("hex"), 16);
     const result = new BN(soliditySha3({ t: "uint256", v: config.network.chain_id },
         { t: "bytes32", v: state.entropy }, { t: "address", v: config.network.gem_address },
-        { t: "address", v: config.address },
+        { t: "address", v: mining_target },
         { t: "uint", v: config.gem_type },
         { t: "uint", v: state.nonce },
         { t: "uint", v: salt }
