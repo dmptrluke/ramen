@@ -1,6 +1,6 @@
 import { parentPort, workerData } from 'worker_threads';
 const config = workerData.config;
-const worker_id = workerData.i;
+const worker_id = workerData.i + 1;
 
 import BN from 'bn.js';
 

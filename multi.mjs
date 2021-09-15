@@ -17,6 +17,7 @@ if ('explorer' in config.network) {
     explorer = config.network.explorer;
 }
 
+// default to 4 threads if not configured
 var threads = 4;
 if ('threads' in config) {
     threads = config.workers;
