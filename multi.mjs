@@ -1,5 +1,6 @@
 import { Worker } from 'worker_threads';
 import Web3 from 'web3';
+import os from 'os';
 
 import config from './config.json'
 import ABI_GEM from "./abi/gem.json";
@@ -19,8 +20,8 @@ if ('explorer' in config.network) {
     explorer = config.network.explorer;
 }
 
-// default to 4 threads if not configured
-var threads = 4;
+// default to all cores minus 1 if not configured
+var threads = os.cpus().length - 1;
 if ('threads' in config) {
     threads = config.threads;
 }
