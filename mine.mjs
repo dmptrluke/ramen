@@ -14,7 +14,7 @@ import ABI_FANTOM_POOL from "./abi/fantom_pool.json";
 const web3 = new Web3(config.network.rpc);
 const provably = new web3.eth.Contract(ABI_FANTOM_GEM, config.network.gem_address);
 
-const { name } = await provably.methods.gems(config.gem_type).call();
+var name = "";
 
 // if auto-claim is enabled, load the users private key
 if ('claim' in config) {
@@ -149,6 +149,8 @@ async function loop() {
 };
 
 async function main() {
+    ({ name } = await provably.methods.gems(config.gem_type).call());
+
     console.log(`You venture into the mines in search of ${name}...`);
     if (config.loop) {
         while (true) {
