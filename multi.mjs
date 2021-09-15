@@ -17,6 +17,11 @@ if ('explorer' in config.network) {
     explorer = config.network.explorer;
 }
 
+var threads = 4;
+if ('threads' in config) {
+    threads = config.workers;
+}
+
 // if auto-claim is enabled, load the users private key
 if ('claim' in config) {
     web3.eth.accounts.wallet.add(config.claim.private_key);
@@ -114,7 +119,6 @@ async function handle(salt) {
 
 async function main() {
     gem_name = await get_name();
-    const threads = 8;
 
     console.log(`You send your team of ${threads} into the mines in search of ${gem_name}...`);
 
