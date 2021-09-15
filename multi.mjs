@@ -6,6 +6,8 @@ import ABI_GEM from "./abi/gem.json";
 
 var workers = [];
 
+var paused = false;
+
 const web3 = new Web3(config.network.rpc);
 const contract = new web3.eth.Contract(ABI_GEM, config.network.gem_address);
 
@@ -96,6 +98,12 @@ async function mine(salt) {
  * @param {BN} salt A previously-verified salt to process.
  */
 async function handle(salt) {
+    if (paused) {
+        // another instance of handle is working, don't process this event
+        return;
+    }
+
+    paused = true;
     for (const port of workers) {
         port.postMessage('pause');
     }
@@ -109,8 +117,9 @@ async function handle(salt) {
     }
 
     // helps prevent transaction conflicts
-    await sleep(500);
+    await sleep(250);
 
+    paused = false;
     for (const port of workers) {
         port.postMessage('resume');
     }
