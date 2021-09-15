@@ -1,6 +1,7 @@
 {
     "scripts": {
         "start": "node --experimental-json-modules --no-warnings mine.mjs",
+        "multiramen": "node --experimental-json-modules --no-warnings multi.mjs",
         "debug": "node --experimental-json-modules mine.mjs"
     },
     "dependencies": {

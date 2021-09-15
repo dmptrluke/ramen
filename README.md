@@ -25,12 +25,13 @@ Set `gem_type` to pick the gem you want to mine. You can see a list of gem types
     "network": {
         "chain_id": "250",
         "rpc": "https://rpc.ftm.tools/",
+        "explorer": "https://ftmscan.com/",
         "gem_address": "0x342EbF0A5ceC4404CcFF73a40f9c30288Fc72611"
     },
     "ding": true,
     "loop": false,
     "gem_type": 0,
-    "address": "ADDRESS HERE",
+    "address": "YOUR ADDRESS HERE",
     "claim": {
         "private_key": "PRIVATE KEY HERE",
         "maximum_gas_price": 500
