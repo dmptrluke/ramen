@@ -74,7 +74,7 @@ async function work() {
             
         }
         if (i % 20000 == 0) {
-            console.log(`Iteration: ${i}, Difficulty: ${state.difficulty}`);
+            console.log(`[${worker_id}] Iteration: ${i}, Difficulty: ${state.difficulty}`);
         }
 
         // we need to allow other tasks to be completed, so we have a slight pause
