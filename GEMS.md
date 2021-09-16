@@ -28,13 +28,13 @@
 
 ## Ethereum (blootgems)
 
-0. Violet Useless Rock of ALPHA
-1. Goldy Pebble of LOOKS RARE
-2. Translucent River Rock of HODL
-3. Blue Ice Scrap of UP ONLY
-4. Blushing Rock of PROBABLY NOTHING
-5. Mossy Riverside Pebble of LFG
-6. The Lovely Rock of GOAT
-7. #00FF00 of OG
-8. #0000FF of WAGMI
-9. #FF0000 of THE MOON
+10. Violet Useless Rock of ALPHA
+11. Goldy Pebble of LOOKS RARE
+12. Translucent River Rock of HODL
+13. Blue Ice Scrap of UP ONLY
+14. Blushing Rock of PROBABLY NOTHING
+15. Mossy Riverside Pebble of LFG
+16. The Lovely Rock of GOAT
+17. #00FF00 of OG
+18. #0000FF of WAGMI
+19. #FF0000 of THE MOON

@@ -23,8 +23,8 @@ if ('explorer' in config.network) {
     explorer = config.network.explorer;
 }
 
-// default to all cores minus 1 if not configured
-var threads = os.cpus().length - 1;
+// default to all cores
+var threads = os.cpus().length;
 if ('threads' in config) {
     threads = config.threads;
 }
@@ -44,20 +44,25 @@ async function get_name() {
  * Calls the gems() function on the gem contract to get the current
  * entropy, difficult, and nonce.
  */
-async function get_state() {
+async function getState() {
     const { entropy, difficulty } = await contract.methods.gems(config.gem_type).call();
     const nonce = await contract.methods.nonce(config.address).call();
     
     return { entropy, difficulty, nonce };
 };
 
-async function update_workers() {
+/**
+ * Calls getState() to fetch the latest gem state, then sends it to all workers.
+ * If state is invalid, does nothing.
+ */
+async function updateWorkers() {
     try {
-        state = await get_state();
+        state = await getState();
         for (const port of workers) {
             port.postMessage({topic: 'state', data: state});
         }
     } catch (error) {
+
         console.log(`Failed to update state, will try again in a moment.`);
     }
 }
@@ -131,16 +136,18 @@ async function handle(salt) {
     }
 
     console.log(`You stumble upon a vein of ${gem_name}!`);
-
     await mine(salt);
-
     if (config.ding) {
         console.log('\u0007');
     }
 
+    if (!config.loop) {
+        process.exit(0)
+    }
+
     paused = false;
 
-    await update_workers();
+    await updateWorkers();
     for (const port of workers) {
         port.postMessage({topic: 'resume', data: []});
     }
@@ -149,7 +156,7 @@ async function handle(salt) {
 
 async function main() {
     gem_name = await get_name();
-    state = await get_state();
+    state = await getState();
 
     console.log(`You send your team of ${threads} into the mines in search of ${gem_name}...`);
     
@@ -162,12 +169,11 @@ async function main() {
     }
 
     while (true) {
-        await sleep(1000);
-        
         if (!paused) {
-            await update_workers();
+            await updateWorkers();
         }
-        
+
+        await sleep(1000);
     }
 }
 

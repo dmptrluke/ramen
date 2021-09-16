@@ -1,7 +1,7 @@
 # Ramen
 A tool to explore caves, adventure, and find riches! 💎
 
-Ramen is an quick, easy to use Javascript miner for [Provably Rare Gems](https://gems.alphafinance.io/#/rarity) on Fantom (raritygems) and Ethereum (lootgems).
+Ramen is an quick, easy to use multi-threaded Javascript miner for [Provably Rare Gems](https://gems.alphafinance.io/#/rarity) on Fantom (raritygems) and Ethereum (lootgems).
 
 ## How to use
 First, [install node.js](https://nodejs.org/en/). And grab all the files, of course.
@@ -28,9 +28,10 @@ Set `gem_type` to pick the gem you want to mine. You can see a list of gem types
         "explorer": "https://ftmscan.com/",
         "gem_address": "0x342EbF0A5ceC4404CcFF73a40f9c30288Fc72611"
     },
-    "ding": true,
-    "loop": false,
     "gem_type": 0,
+    "ding": true,
+    "loop": true,
+    "threads": 4,
     "address": "YOUR ADDRESS HERE",
     "claim": {
         "private_key": "PRIVATE KEY HERE",

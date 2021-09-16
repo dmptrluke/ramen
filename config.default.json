@@ -8,6 +8,7 @@
     "ding": true,
     "loop": false,
     "gem_type": 0,
+    "threads": 4,
     "address": "YOUR ADDRESS HERE",
     "claim": {
         "private_key": "PRIVATE KEY HERE",

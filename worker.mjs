@@ -23,19 +23,15 @@ var halted = false;
 
 parentPort.on('message', (message) => {
     if (message.topic === 'pause') {
-        // console.log(`[${worker_id}] Worker paused`);
         paused = true;
     } 
     if (message.topic === 'resume') {
-        // console.log(`[${worker_id}] Worker resumed`);
         paused = false;
     } 
     if (message.topic === 'halt') {
-        // console.log(`[${worker_id}] Worker halted`);
         halted = true;
     } 
     if (message.topic === 'state') {
-        // console.log(`[${worker_id}] Worker state updated`);
         state = message.data;
         difficulty = new BN(2).pow(new BN(256)).div(new BN(state.difficulty));
         ready = true;
@@ -56,10 +52,9 @@ function hash(state) {
 }
 
 async function work() {
-
     let i = 0;
     while (!paused) {
-        // if this workwe xz
+        // wait until the parent thread has updated us with the current state
         while (!ready) {
             await sleep(50);
         }
@@ -68,7 +63,8 @@ async function work() {
         i += 1;
         if (difficulty.gte(iteration.result)) {
             if (!paused){
-                // dont send a gem to the parent thread if we are paused, it wont work well
+                // dont send a gem to the parent thread if we are paused
+                // if we do, the transactions will conflict
                 parentPort.postMessage(iteration.salt.toString()); 
             }
             
