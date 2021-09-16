@@ -16,7 +16,7 @@ Then you'll need to open up a terminal/command line in the correct folder, and r
 `npm start` to start mining!
 
 ## Configuration
-The default configuration for automatically claiming gems looks like the example below. Set `loop` to true if you want the miner to keep mining after it finds a gem.
+The default configuration for automatically claiming gems looks like the example below. Set `loop` to false if you want the miner to stop after it finds a gem.
 
 Set `threads` to choose how many mining workers you want to run. Setting this to the amount of cores your system has is a good start.
 
