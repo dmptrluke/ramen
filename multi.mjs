@@ -52,9 +52,13 @@ async function get_state() {
 };
 
 async function update_workers() {
-    state = await get_state();
-    for (const port of workers) {
-        port.postMessage({topic: 'state', data: state});
+    try {
+        state = await get_state();
+        for (const port of workers) {
+            port.postMessage({topic: 'state', data: state});
+        }
+    } catch (error) {
+        console.log(`Failed to update state, will try again in a moment.`);
     }
 }
 
