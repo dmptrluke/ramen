@@ -7,45 +7,40 @@ import BN from 'bn.js';
 import { soliditySha3 } from "./dirtyhash.js";
 import { exit } from 'process';
 
+import { sleep } from './util.mjs';
+
 import { randomBytes } from 'crypto';
-import Web3 from 'web3';
-
-import ABI_GEM from "./abi/gem.json";
-
-const web3 = new Web3(config.network.rpc);
-const provably = new web3.eth.Contract(ABI_GEM, config.network.gem_address);
 
 var mining_target = config.address;
 
-// state
-var state;
-
 // worker/parent communication
+var state;
+var difficulty;
+
+var ready = false;
 var paused = false;
 var halted = false;
 
 parentPort.on('message', (message) => {
-    if (message == 'pause') {
+    if (message.topic === 'pause') {
+        // console.log(`[${worker_id}] Worker paused`);
         paused = true;
-    } else if (message == 'resume') {
+    } 
+    if (message.topic === 'resume') {
+        // console.log(`[${worker_id}] Worker resumed`);
         paused = false;
-    } else if (message == 'halt') {
+    } 
+    if (message.topic === 'halt') {
+        // console.log(`[${worker_id}] Worker halted`);
         halted = true;
+    } 
+    if (message.topic === 'state') {
+        // console.log(`[${worker_id}] Worker state updated`);
+        state = message.data;
+        difficulty = new BN(2).pow(new BN(256)).div(new BN(state.difficulty));
+        ready = true;
     }
 });
-
-
-/**
- * Calls the gems() function on the gem contract to get the current
- * entropy, difficult, and nonce.
- */
-async function getState() {
-    const { entropy, difficulty } = await provably.methods.gems(config.gem_type).call();
-    const nonce = await provably.methods.nonce(mining_target).call();
-    const calulated_difficulty = new BN(2).pow(new BN(256)).div(new BN(difficulty));
-    return { entropy, difficulty, calulated_difficulty, nonce };
-};
-
 
 function hash(state) {
     const salt = new BN(randomBytes(32).toString("hex"), 16);
@@ -61,16 +56,17 @@ function hash(state) {
 }
 
 async function work() {
-    // get the inital contract state
-    state = await getState();
 
     let i = 0;
     while (!paused) {
-
+        // if this workwe xz
+        while (!ready) {
+            await sleep(50);
+        }
         let iteration = hash(state);
 
         i += 1;
-        if (state.calulated_difficulty.gte(iteration.result)) {
+        if (difficulty.gte(iteration.result)) {
             if (!paused){
                 // dont send a gem to the parent thread if we are paused, it wont work well
                 parentPort.postMessage(iteration.salt.toString()); 
@@ -78,20 +74,22 @@ async function work() {
             
         }
         if (i % 20000 == 0) {
-                getState().then((x) => {state = x});
-                console.log(`[${worker_id}] Hashes: ${i}, Difficulty: ${state.difficulty}`);
+            console.log(`Iteration: ${i}, Difficulty: ${state.difficulty}`);
         }
+
+        // we need to allow other tasks to be completed, so we have a slight pause
         if (i % 2000 == 0) {
-            // pause every 2000 iterations to allow other async operations to process
-            await new Promise(r => setTimeout(r, 1));
+            await sleep(1);
         }
     }
 };
 
 async function worker() {
     console.log(`[${worker_id}] Mining worker ${worker_id} is online.`);
+
     while (!halted) {
         await work();
+        await sleep(50);
     }
     exit(0);
 };

@@ -1,12 +1,15 @@
 import { Worker } from 'worker_threads';
 import Web3 from 'web3';
+import BN from 'bn.js';
 import os from 'os';
 
+import { sleep } from './util.mjs';
+
 import config from './config.json'
-import ABI_GEM from "./abi/gem.json";
+import ABI_GEM from './abi/gem.json';
 
 var workers = [];
-
+var state;
 var paused = false;
 
 const web3 = new Web3(config.network.rpc);
@@ -32,14 +35,28 @@ if ('claim' in config) {
 }
 
 // utility functions
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 async function get_name() {
     const { name } = await contract.methods.gems(config.gem_type).call();
     return name;
 };
+
+/**
+ * Calls the gems() function on the gem contract to get the current
+ * entropy, difficult, and nonce.
+ */
+async function get_state() {
+    const { entropy, difficulty } = await contract.methods.gems(config.gem_type).call();
+    const nonce = await contract.methods.nonce(config.address).call();
+    
+    return { entropy, difficulty, nonce };
+};
+
+async function update_workers() {
+    state = await get_state();
+    for (const port of workers) {
+        port.postMessage({topic: 'state', data: state});
+    }
+}
 
 /**
  * Take a salt and calls the mine() function the the gem contract.
@@ -106,7 +123,7 @@ async function handle(salt) {
 
     paused = true;
     for (const port of workers) {
-        port.postMessage('pause');
+        port.postMessage({topic: 'pause', data: []});
     }
 
     console.log(`You stumble upon a vein of ${gem_name}!`);
@@ -117,27 +134,36 @@ async function handle(salt) {
         console.log('\u0007');
     }
 
-    // helps prevent transaction conflicts
-    await sleep(250);
-
     paused = false;
+
+    await update_workers();
     for (const port of workers) {
-        port.postMessage('resume');
+        port.postMessage({topic: 'resume', data: []});
     }
     console.log('You find a new branch of the cave to mine and head in.');
-
 }
 
 async function main() {
     gem_name = await get_name();
+    state = await get_state();
 
     console.log(`You send your team of ${threads} into the mines in search of ${gem_name}...`);
+    
 
     for (let i = 0; i < threads; i++) {
-        const port = new Worker('./worker.mjs', { workerData: { i, config } });
+        const port = new Worker('./worker.mjs', { workerData: { i, config, state } });
         workers.push(port);
 
         port.on("message", (data) => handle(data))
+    }
+
+    while (true) {
+        await sleep(1000);
+        
+        if (!paused) {
+            await update_workers();
+        }
+        
     }
 }
 
