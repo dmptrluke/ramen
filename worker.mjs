@@ -52,16 +52,6 @@ parentPort.on('message', (message) => {
     }
 });
 
-
-function hash() {
-    const salt = new BN(randomBytes(32).toString("hex"), 16);
-
-    const packed = prefix.concat(hexStringToBytes(salt.toTwos(256).toString(16)));
-    const result = new BN(sha3.keccak_256(packed), 16);
-
-    return { salt, result }
-}
-
 async function work() {
     var i = 0;
     var timer = process.hrtime.bigint();
@@ -71,14 +61,17 @@ async function work() {
         while (!ready) {
             await sleep(50);
         }
-        var iteration = hash();
+
+        const salt = new BN(randomBytes(32).toString("hex"), 16);
+        const packed = prefix.concat(hexStringToBytes(salt.toTwos(256).toString(16)));
+        const hash = new BN(sha3.keccak_256(packed), 16);
 
         i += 1;
-        if (difficulty.gte(iteration.result)) {
+        if (difficulty.gte(hash)) {
             if (!paused) {
                 // dont send a gem to the parent thread if we are paused
                 // if we do, the transactions will conflict
-                parentPort.postMessage(iteration.salt.toString());
+                parentPort.postMessage(salt.toString());
             }
 
         }
