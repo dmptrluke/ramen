@@ -145,14 +145,14 @@ async function handle(salt) {
         process.exit(0)
     }
 
-    await sleep(100);
+    await sleep(500);
+    
+    paused = false;
     
     await updateWorkers();
     for (const port of workers) {
         port.postMessage({topic: 'resume', data: []});
     }
-
-    paused = false;
 
     console.log('You find a new branch of the cave to mine and head in.');
 }
