@@ -8,7 +8,7 @@ import web3 from 'web3';
 import sha3 from 'js-sha3';
 
 import { exit } from 'process';
-import { sleep } from './util.mjs';
+import { sleep, hexStringToBytes } from './util.mjs';
 import { randomBytes } from 'crypto';
 
 var mining_target = config.address;
@@ -38,13 +38,15 @@ parentPort.on('message', (message) => {
 
         // we calulate most of the string to hash ahead of time, and
         // just add the encoded salt to the end for each iteration
-        prefix = web3.utils.encodePacked(
+        const unpacked = web3.utils.encodePacked(
             { t: "uint256", v: config.network.chain_id },
             { t: "bytes32", v: message.data.entropy }, { t: "address", v: config.network.gem_address },
             { t: "address", v: mining_target },
             { t: "uint", v: config.gem_type },
             { t: "uint", v: message.data.nonce }
-        );
+        ).slice(2);
+
+        prefix = hexStringToBytes(unpacked);
         difficulty = new BN(2).pow(new BN(256)).div(new BN(message.data.difficulty));
         ready = true;
     }
@@ -54,10 +56,8 @@ parentPort.on('message', (message) => {
 function hash() {
     const salt = new BN(randomBytes(32).toString("hex"), 16);
 
-    const packed = salt.toTwos(256).toString(16);
-    const packed_bytes = web3.utils.hexToBytes(prefix + packed);
-
-    const result = new BN(sha3.keccak_256(packed_bytes), 16);
+    const packed = prefix.concat(hexStringToBytes(salt.toTwos(256).toString(16)));
+    const result = new BN(sha3.keccak_256(packed), 16);
 
     return { salt, result }
 }
@@ -82,15 +82,15 @@ async function work() {
             }
 
         }
-        if (i % 40000 == 0) {
-            const speed = 40000 / (Number((process.hrtime.bigint() - timer)) / 1000000000);
+        if (i % 50000 == 0) {
+            const speed = 50000 / (Number((process.hrtime.bigint() - timer)) / 1000000000);
             console.log(`[${worker_id}] Hashes: ${i}, Speed: ${(speed / 1000).toFixed(1)}KH/s, Difficulty: ${state.difficulty}`);
 
             var timer = process.hrtime.bigint();
         }
 
         // we need to allow other tasks to be completed, so we have a slight pause
-        if (i % 5000 == 0) {
+        if (i % 8000 == 0) {
             await sleep(1);
         }
     }
