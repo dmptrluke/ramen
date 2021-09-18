@@ -52,14 +52,16 @@ function hash(state) {
 }
 
 async function work() {
-    let i = 0;
+    var i = 0;
+    var timer = process.hrtime.bigint();
+
     while (!paused) {
         // wait until the parent thread has updated us with the current state
         while (!ready) {
             await sleep(50);
         }
-        let iteration = hash(state);
-
+        var iteration = hash(state);
+        
         i += 1;
         if (difficulty.gte(iteration.result)) {
             if (!paused){
@@ -69,12 +71,15 @@ async function work() {
             }
             
         }
-        if (i % 20000 == 0) {
-            console.log(`[${worker_id}] Iteration: ${i}, Difficulty: ${state.difficulty}`);
+        if (i % 40000 == 0) {
+            const speed = 40000 / (Number((process.hrtime.bigint() - timer))  / 1000000000); 
+            console.log(`[${worker_id}] Hashes: ${i}, Speed: ${(speed / 1000).toFixed(1)}KH/s, Difficulty: ${state.difficulty}`);
+
+            var timer = process.hrtime.bigint();
         }
 
         // we need to allow other tasks to be completed, so we have a slight pause
-        if (i % 2000 == 0) {
+        if (i % 10000 == 0) {
             await sleep(1);
         }
     }
