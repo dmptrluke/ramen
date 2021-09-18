@@ -3,7 +3,7 @@ import Web3 from 'web3';
 import BN from 'bn.js';
 import os from 'os';
 
-import { sleep } from './util.mjs';
+import { sleep, hexStringToBytes } from './util.mjs';
 
 import config from './config.json'
 import ABI_GEM from './abi/gem.json';
@@ -47,8 +47,20 @@ async function get_name() {
 async function getState() {
     const { entropy, difficulty } = await contract.methods.gems(config.gem_type).call();
     const nonce = await contract.methods.nonce(config.address).call();
+
+    // we calulate most of the string to hash ahead of time, and
+    // just add the encoded salt to the end for each iteration
+    const unpacked = web3.utils.encodePacked(
+        { t: "uint256", v: config.network.chain_id },
+        { t: "bytes32", v: entropy }, { t: "address", v: config.network.gem_address },
+        { t: "address", v: config.address },
+        { t: "uint", v: config.gem_type },
+        { t: "uint", v: nonce }
+    ).slice(2);
+
+    const prefix = hexStringToBytes(unpacked);
     
-    return { entropy, difficulty, nonce };
+    return { entropy, difficulty, nonce, prefix };
 };
 
 /**
@@ -58,6 +70,7 @@ async function getState() {
 async function updateWorkers() {
     try {
         state = await getState();
+
         for (const port of workers) {
             port.postMessage({topic: 'state', data: state});
         }

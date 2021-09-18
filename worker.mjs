@@ -4,14 +4,11 @@ const worker_id = workerData.i + 1;
 
 import BN from 'bn.js';
 
-import web3 from 'web3';
 import sha3 from 'js-sha3';
 
 import { exit } from 'process';
-import { sleep, hexStringToBytes } from './util.mjs';
+import { sleep } from './util.mjs';
 import { randomBytes } from 'crypto';
-
-var mining_target = config.address;
 
 // worker/parent communication
 var state;
@@ -35,18 +32,8 @@ parentPort.on('message', (message) => {
     }
     if (message.topic === 'state') {
         state = message.data;
+        prefix = state.prefix;
 
-        // we calulate most of the string to hash ahead of time, and
-        // just add the encoded salt to the end for each iteration
-        const unpacked = web3.utils.encodePacked(
-            { t: "uint256", v: config.network.chain_id },
-            { t: "bytes32", v: message.data.entropy }, { t: "address", v: config.network.gem_address },
-            { t: "address", v: mining_target },
-            { t: "uint", v: config.gem_type },
-            { t: "uint", v: message.data.nonce }
-        ).slice(2);
-
-        prefix = hexStringToBytes(unpacked);
         difficulty = new BN(2).pow(new BN(256)).div(new BN(message.data.difficulty));
         ready = true;
     }
