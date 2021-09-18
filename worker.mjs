@@ -7,7 +7,7 @@ import BN from 'bn.js';
 import sha3 from 'js-sha3';
 
 import { exit } from 'process';
-import { sleep } from './util.mjs';
+import { sleep, hexStringToBytes } from './util.mjs';
 import { randomBytes } from 'crypto';
 
 // worker/parent communication
