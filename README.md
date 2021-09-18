@@ -1,7 +1,7 @@
 # Ramen
 A tool to explore caves, adventure, and find riches! 💎
 
-Ramen is an quick, easy to use multi-threaded Javascript miner for [Provably Rare Gems](https://gems.alphafinance.io/#/rarity) on Fantom (raritygems) and Ethereum (lootgems).
+Ramen is an quick, easy to use **multi-threaded** node.js miner for [Provably Rare Gems](https://gems.alphafinance.io/#/rarity) on Fantom (raritygems) and Ethereum (lootgems).
 
 ## How to use
 First, [install node.js](https://nodejs.org/en/). And grab all the files, of course.
@@ -16,7 +16,9 @@ Then you'll need to open up a terminal/command line in the correct folder, and r
 `npm start` to start mining!
 
 ## Configuration
-The default configuration for automatically claiming gems looks like the example below. Set `loop` to true if you want the miner to keep mining after it finds a gem.
+The default configuration for automatically claiming gems looks like the example below. Set `loop` to false if you want the miner to stop after it finds a gem.
+
+Set `threads` to choose how many mining workers you want to run. Setting this to the amount of cores your system has is a good start.
 
 Set `gem_type` to pick the gem you want to mine. You can see a list of gem types in [GEMS.md](https://github.com/dmptrluke/ramen/blob/master/GEMS.md).
 
@@ -29,10 +31,10 @@ Set `gem_type` to pick the gem you want to mine. You can see a list of gem types
         "gem_address": "0x342EbF0A5ceC4404CcFF73a40f9c30288Fc72611"
     },
     "gem_type": 0,
-    "ding": true,
-    "loop": true,
     "threads": 4,
     "address": "YOUR ADDRESS HERE",
+    "ding": true,
+    "loop": true,
     "claim": {
         "private_key": "PRIVATE KEY HERE",
         "maximum_gas_price": 500
