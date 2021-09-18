@@ -25,6 +25,7 @@ var halted = false;
 parentPort.on('message', (message) => {
     if (message.topic === 'pause') {
         paused = true;
+        ready = false;
     }
     if (message.topic === 'resume') {
         paused = false;
@@ -89,7 +90,7 @@ async function work() {
         }
 
         // we need to allow other tasks to be completed, so we have a slight pause
-        if (i % 10000 == 0) {
+        if (i % 5000 == 0) {
             await sleep(1);
         }
     }
