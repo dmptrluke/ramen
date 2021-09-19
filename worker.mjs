@@ -10,7 +10,7 @@ import BN from 'bn.js';
 import sha3 from 'js-sha3';
 
 import { exit } from 'process';
-import { sleep, hexStringToBytes } from './util.mjs';
+import { sleep } from './util.mjs';
 import { randomBytes } from 'crypto';
 
 // worker/parent communication
@@ -45,30 +45,29 @@ parentPort.on('message', (message) => {
 
 async function work() {
     var i = 0;
+    
+    // wait until the parent thread has updated us with the current state
+    while (!ready) {
+        await sleep(50);
+    }
+    
     var timer = process.hrtime.bigint();
 
     while (!paused) {
-        // wait until the parent thread has updated us with the current state
-        while (!ready) {
-            await sleep(50);
-        }
+        // generate some random bytes (a salt)
+        const bytes = [...randomBytes(32)];
 
-        // generate a random salt
-        const salt = randomBytes(32).toString("hex");
-
-        // pack that salt into a byte array, and add it to the end of the pre-packed prefix
-        const packed = prefix.concat(hexStringToBytes(salt));
-
-        // hash the whole lot with Keccak-256
-        const hash = new BN(sha3.keccak_256(packed), 16);
+        // hash the salt and prefix with Keccak-256
+        const hash = new BN(sha3.keccak_256(prefix.concat(bytes)), 16);
 
         i += 1;
         if (difficulty.gte(hash)) {
             if (!paused) {
                 // dont send a gem to the parent thread if we are paused
                 // if we do, the transactions will conflict
-                const formatted = new BN(salt, 16);
-                parentPort.postMessage(formatted.toString());
+
+                const salt = new BN(bytes);
+                parentPort.postMessage(salt.toString());
             }
 
         }

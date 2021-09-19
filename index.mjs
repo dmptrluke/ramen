@@ -3,7 +3,7 @@ import Web3 from 'web3';
 import BN from 'bn.js';
 import os from 'os';
 
-import { sleep, hexStringToBytes } from './util.mjs';
+import { sleep, hexToBytes } from './util.mjs';
 
 import config from './config.json'
 import ABI_GEM from './abi/gem.json';
@@ -58,7 +58,7 @@ async function getState() {
         { t: "uint", v: nonce }
     ).slice(2);
 
-    const prefix = hexStringToBytes(unpacked);
+    const prefix = hexToBytes(unpacked);
     
     return { entropy, difficulty, nonce, prefix };
 };
