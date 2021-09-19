@@ -4,6 +4,9 @@ const worker_id = workerData.i + 1;
 
 import BN from 'bn.js';
 
+// why do we specify an older verion of js-sha3 in package.json?
+// newer versions have more safety/sanity checks, which we don't
+// need - they slow down hashing performance
 import sha3 from 'js-sha3';
 
 import { exit } from 'process';
@@ -49,8 +52,13 @@ async function work() {
             await sleep(50);
         }
 
+        // generate a random salt
         const salt = new BN(randomBytes(32).toString("hex"), 16);
+
+        // pack that salt into a byte array, and add it to the end of the pre-packed prefix
         const packed = prefix.concat(hexStringToBytes(salt.toTwos(256).toString(16)));
+
+        // hash the whole lot with Keccak-256
         const hash = new BN(sha3.keccak_256(packed), 16);
 
         i += 1;
