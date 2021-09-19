@@ -53,10 +53,10 @@ async function work() {
         }
 
         // generate a random salt
-        const salt = new BN(randomBytes(32).toString("hex"), 16);
+        const salt = randomBytes(32).toString("hex");
 
         // pack that salt into a byte array, and add it to the end of the pre-packed prefix
-        const packed = prefix.concat(hexStringToBytes(salt.toTwos(256).toString(16)));
+        const packed = prefix.concat(hexStringToBytes(salt));
 
         // hash the whole lot with Keccak-256
         const hash = new BN(sha3.keccak_256(packed), 16);
@@ -66,7 +66,8 @@ async function work() {
             if (!paused) {
                 // dont send a gem to the parent thread if we are paused
                 // if we do, the transactions will conflict
-                parentPort.postMessage(salt.toString());
+                const formatted = new BN(salt, 16);
+                parentPort.postMessage(formatted.toString());
             }
 
         }
