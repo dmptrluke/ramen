@@ -189,7 +189,12 @@ async function main() {
             await updateWorkers();
         }
 
-        await sleep(1000);
+        // update state less often for difficult gems
+        if (config.gem_type == 0) {
+            await sleep(1000);
+        } else {
+            await sleep(5000);
+        }
     }
 }
 
