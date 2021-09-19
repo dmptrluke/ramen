@@ -191,7 +191,7 @@ async function main() {
 
         // update state less often for difficult gems
         if (config.gem_type == 0) {
-            await sleep(1000);
+            await sleep(2000);
         } else {
             await sleep(5000);
         }

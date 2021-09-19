@@ -23,6 +23,13 @@ var paused = false;
 var halted = false;
 
 parentPort.on('message', (message) => {
+    if (message.topic === 'state') {
+        state = message.data;
+        prefix = state.prefix;
+
+        difficulty = new BN(2).pow(new BN(256)).div(new BN(message.data.difficulty));
+        ready = true;
+    }
     if (message.topic === 'pause') {
         paused = true;
         ready = false;
@@ -33,13 +40,7 @@ parentPort.on('message', (message) => {
     if (message.topic === 'halt') {
         halted = true;
     }
-    if (message.topic === 'state') {
-        state = message.data;
-        prefix = state.prefix;
 
-        difficulty = new BN(2).pow(new BN(256)).div(new BN(message.data.difficulty));
-        ready = true;
-    }
 });
 
 async function work() {
@@ -71,16 +72,16 @@ async function work() {
             }
 
         }
-        if (i % 50000 == 0) {
-            const speed = 50000 / (Number((process.hrtime.bigint() - timer)) / 1000000000);
+        if (i % 60000 == 0) {
+            const speed = 60000 / (Number((process.hrtime.bigint() - timer)) / 1000000000);
             console.log(`[${worker_id}] Hashes: ${i}, Speed: ${(speed / 1000).toFixed(1)}KH/s, Difficulty: ${state.difficulty}`);
 
             var timer = process.hrtime.bigint();
         }
 
         // we need to allow other tasks to be completed, so we have a slight pause
-        if (i % 8000 == 0) {
-            await sleep(1);
+        if (i % 16000 == 0) {
+            await sleep(0);
         }
     }
 };
