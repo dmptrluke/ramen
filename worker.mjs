@@ -72,8 +72,8 @@ async function work() {
             }
 
         }
-        if (i % 60000 == 0) {
-            const speed = 60000 / (Number((process.hrtime.bigint() - timer)) / 1000000000);
+        if (i % 70000 == 0) {
+            const speed = 70000 / (Number((process.hrtime.bigint() - timer)) / 1000000000);
             console.log(`[${worker_id}] Hashes: ${i}, Speed: ${(speed / 1000).toFixed(1)}KH/s, Difficulty: ${state.difficulty}`);
 
             var timer = process.hrtime.bigint();
