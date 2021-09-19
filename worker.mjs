@@ -53,10 +53,18 @@ async function work() {
     
     var timer = process.hrtime.bigint();
 
-    while (!paused) {
-        // generate some random bytes (a salt)
-        const bytes = [...randomBytes(32)];
+    // get enough random bytes for 128 salts 
+    var random_bytes = [...randomBytes(4096)];
 
+    while (!paused) {
+        // if bytes are depleted, get more
+        if (i % 128 == 0) {
+            random_bytes = [...randomBytes(4096)];
+        }
+
+        // get some random bytes (a salt)
+        const bytes = random_bytes.splice(0, 32)
+        
         // hash the salt and prefix with Keccak-256
         const hash = new BN(sha3.keccak_256(prefix.concat(bytes)), 16);
 
